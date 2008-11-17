@@ -198,10 +198,8 @@ module Mongrel
 
       stat = File.stat(req_path)
 
-      # Set the last modified times as well and etag for all files
+      # Set the last modified times for all files
       mtime = stat.mtime
-      # Calculated the same as apache, not sure how well the works on win32
-      etag = Const::ETAG_FORMAT % [mtime.to_i, stat.size, stat.ino]
 
       modified_since = request.params[Const::HTTP_IF_MODIFIED_SINCE]
       none_match = request.params[Const::HTTP_IF_NONE_MATCH]
@@ -212,13 +210,11 @@ module Mongrel
                       when modified_since && !last_response_time = Time.httpdate(modified_since) rescue nil then false
                       when modified_since && last_response_time > Time.now                                  then false
                       when modified_since && mtime > last_response_time                                     then false
-                      when none_match     && none_match == '*'                                              then false
-                      when none_match     && !none_match.strip.split(/\s*,\s*/).include?(etag)              then false
-                      else modified_since || none_match  # validation successful if we get this far and at least one of the header exists
+                      when none_match                                                                       then false
+                      else modified_since  # validation successful if we get this far and at least one of the header exists
                       end
 
       header = response.header
-      header[Const::ETAG] = etag
 
       if same_response
         response.start(304) {}
