@@ -289,7 +289,27 @@ module Cluster
         @force = false
       end
   end
-  
+
+  # Stops all mongrel processes, then starts them.
+  class StopStart < GemPlugin::Plugin "/commands"
+    include ExecBase
+
+    def configure
+      options [
+        ['-C', '--config PATH', "Path to cluster configuration file", :@config_file, "config/mongrel_cluster.yml"],
+        ['-f', '--force', "Force the shutdown.", :@force, false],
+        ['-v', '--verbose', "Print all called commands and output.", :@verbose, false],
+        ['', '--clean', "Call stop and start with --clean", :@clean, false],
+        ['', '--only PORT', "Port number of cluster member", :@only, nil]
+      ]
+    end
+
+    def run
+      stop
+      start
+    end
+  end
+
   class Configure < GemPlugin::Plugin "/commands"
     include ExecBase
     
