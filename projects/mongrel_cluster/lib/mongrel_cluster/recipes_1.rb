@@ -51,8 +51,10 @@ Capistrano.configuration(:must_exist).load do
   end
   
   desc <<-DESC
-  Restart the Mongrel processes on the app server by starting and stopping the cluster. This uses the :use_sudo
-  variable to determine whether to use sudo or not. By default, :use_sudo is set to true.
+  Restart the Mongrel processes on the app server. The processes go through
+  rolling restarts (i.e. Process 1 is restarted, then Process 2, and so on).
+  This uses the :use_sudo variable to determine whether to use sudo or not.
+  By default, :use_sudo is set to true.
   DESC
   task :restart_mongrel_cluster , :roles => :app do
     set_mongrel_conf
@@ -60,7 +62,19 @@ Capistrano.configuration(:must_exist).load do
     cmd += " --clean" if mongrel_clean    
     send(run_method, cmd)
   end
-  
+
+  desc <<-DESC
+  Restart the Mongrel processes on the app server by starting and stopping the cluster.
+  This uses the :use_sudo variable to determine whether to use sudo or not.
+  By default, :use_sudo is set to true.
+  DESC
+  task :stop_start_mongrel_cluster, :roles => :app do
+    set_conf
+    cmd = "#{mongrel_rails} cluster::stop_start -C #{mongrel_conf}"
+    cmd += " --clean" if mongrel_clean
+    send(run_method, cmd)
+  end
+
   desc <<-DESC
   Stop the Mongrel processes on the app server.  This uses the :use_sudo
   variable to determine whether to use sudo or not. By default, :use_sudo is
