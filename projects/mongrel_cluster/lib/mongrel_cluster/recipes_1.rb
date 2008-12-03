@@ -70,7 +70,7 @@ Capistrano.configuration(:must_exist).load do
   DESC
   task :stop_start_mongrel_cluster, :roles => :app do
     set_conf
-    cmd = "#{mongrel_rails} cluster::stop_start -C #{mongrel_conf}"
+    cmd = "#{mongrel_rails} cluster::stopstart -C #{mongrel_conf}"
     cmd += " --clean" if mongrel_clean
     send(run_method, cmd)
   end
