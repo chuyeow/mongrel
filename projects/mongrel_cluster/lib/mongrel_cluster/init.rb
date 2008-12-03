@@ -266,10 +266,28 @@ module Cluster
     end
     
     def run
-      stop
-      start
+      read_options
+      @force, @clean = [false, true]
+      @ports.each do |port|
+        @only = port
+        stop
+        check_wait
+        start
+      end
     end
-    
+
+    private
+      def check_wait(wait_time = 2)
+        wait_time.times do
+          return unless check_process(@only)
+          sleep 1
+        end
+        log " * Slept #{wait_time} seconds, but still not dead, force killing in 10 more."
+        sleep 10
+        @force = true
+        stop
+        @force = false
+      end
   end
   
   class Configure < GemPlugin::Plugin "/commands"
