@@ -126,6 +126,13 @@ Capistrano::Configuration.instance.load do
     task :stop, :roles => :app do
       mongrel.cluster.stop
     end
+
+    desc <<-DESC
+    Stop and start the Mongrel processes on the app server by calling mongrel:cluster:stop_start.
+    DESC
+    task :stop_start, :roles => :app do
+      mongrel.cluster.stop_start
+    end
   end
 
 end
